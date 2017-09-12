@@ -192,6 +192,7 @@ $(function () {
         $("#update-timeout-form").attr("action", $this.data("url"));
         periodSlider.noUiSlider.set($this.data("timeout"))
         graceSlider.noUiSlider.set($this.data("grace"))
+        reverseGraceSlider.noUiSlider.set($this.data("reverse"))
         $('#update-timeout-modal').modal({"show":true, "backdrop":"static"});
 
         return false;
