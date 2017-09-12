@@ -293,6 +293,7 @@ def update_timeout(request, code):
     if form.is_valid():
         check.timeout = td(seconds=form.cleaned_data["timeout"])
         check.grace = td(seconds=form.cleaned_data["grace"])
+        check.reverse = td(seconds=form.cleaned_data["reverse"])
         check.save()
 
     return redirect("hc-checks")
