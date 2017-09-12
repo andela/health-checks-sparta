@@ -22,6 +22,7 @@ STATUSES = (
 DEFAULT_TIMEOUT = td(days=1)
 DEFAULT_GRACE = td(hours=1)
 DEFAULT_ESCALATION_INTERVAL = td(hours=1)
+DEFAULT_REVERSE = td(minutes=10)
 CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"),
                  ("hipchat", "HipChat"),
                  ("slack", "Slack"), ("pd", "PagerDuty"), ("po", "Pushover"),
@@ -49,6 +50,7 @@ class Check(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     timeout = models.DurationField(default=DEFAULT_TIMEOUT)
     grace = models.DurationField(default=DEFAULT_GRACE)
+    reverse = models.DurationField(default=DEFAULT_REVERSE)
     n_pings = models.IntegerField(default=0)
     last_ping = models.DateTimeField(null=True, blank=True)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
@@ -125,6 +127,7 @@ class Check(models.Model):
             "tags": self.tags,
             "timeout": int(self.timeout.total_seconds()),
             "grace": int(self.grace.total_seconds()),
+            "reverse_grace": int(self.reverse_grace.total_seconds()),
             "n_pings": self.n_pings,
             "status": self.get_status()
         }
