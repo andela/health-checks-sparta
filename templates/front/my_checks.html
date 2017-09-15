@@ -29,7 +29,6 @@
                 <a href="{% url 'hc-checks-unresolved' %}">UNRESOLVED</a>
             </li>
           </ul>
-
     </div>
     {% if tags %}
     <div id="my-checks-tags" class="col-sm-12">
@@ -124,7 +123,6 @@
         </form>
     </div>
 </div>
-
 <div id="update-timeout-modal" class="modal">
     <div class="modal-dialog">
         <form id="update-timeout-form" method="post">
@@ -184,7 +182,6 @@
         </form>
     </div>
 </div>
-
 <div id="remove-check-modal" class="modal">
     <div class="modal-dialog">
         <form id="remove-check-form" method="post">
@@ -210,7 +207,6 @@
         </form>
     </div>
 </div>
-
 <div id="show-usage-modal" class="modal">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -245,8 +241,6 @@
 
             </div>
             <div class="modal-body">
-
-
                 <div class="tab-content">
                     {% with ping_url="<span class='ex'></span>" %}
                     <div role="tabpanel" class="tab-pane active" id="crontab">
@@ -288,8 +282,6 @@
         </div>
     </div>
 </div>
-
-
 <div id="update-priority-modal" class="modal">
     <div class="modal-dialog">
         <form id="update-priority-form" class="form-horizontal" method="post">
@@ -324,7 +316,6 @@
         </form>
     </div>
 </div>
-
 <div id="escalation-matrix-modal" class="modal">
         <div class="modal-dialog">
             <form id="escalation-matrix-form" class="form-horizontal" method="post">
@@ -388,11 +379,9 @@
             </form>
         </div>
     </div>
-
 <form id="pause-form" method="post">
     {% csrf_token %}
 </form>
-
 {% endblock %}
 
 {% block scripts %}
