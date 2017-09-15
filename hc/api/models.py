@@ -20,6 +20,7 @@ STATUSES = (
     ("paused", "Paused")
 )
 DEFAULT_TIMEOUT = td(days=1)
+DEFAULT_PING_BEFORE_LAST = timezone.now()
 DEFAULT_GRACE = td(hours=1)
 DEFAULT_ESCALATION_INTERVAL = td(hours=1)
 DEFAULT_REVERSE = td(minutes=10)
@@ -124,7 +125,7 @@ class Check(models.Model):
         pause_rel_url = reverse("hc-api-pause", args=[self.code])
 
         result = {
-            "name": self,
+            "name": self.name,
             "ping_url": self.url(),
             "pause_url": settings.SITE_ROOT + pause_rel_url,
             "tags": self.tags,
