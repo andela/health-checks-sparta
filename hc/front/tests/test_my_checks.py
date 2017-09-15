@@ -32,6 +32,7 @@ class MyChecksTestCase(BaseTestCase):
 
     def test_it_shows_green_check(self):
         self.check.last_ping = timezone.now()
+        self.check.ping_before_last = timezone.now() - td(days=1)
         self.check.status = "up"
         self.check.save()
 
