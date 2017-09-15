@@ -22,11 +22,12 @@ STATUSES = (
 DEFAULT_TIMEOUT = td(days=1)
 DEFAULT_PING_BEFORE_LAST = timezone.now()
 DEFAULT_GRACE = td(hours=1)
+DEFAULT_ESCALATION_INTERVAL = td(hours=1)
 DEFAULT_REVERSE = td(minutes=10)
 CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"),
                  ("hipchat", "HipChat"),
                  ("slack", "Slack"), ("pd", "PagerDuty"), ("po", "Pushover"),
-                 ("victorops", "VictorOps"))
+                 ("victorops", "VictorOps"), ("sms", "Sms"), ("telegram", "Telegram"))
 
 PO_PRIORITIES = {
     -2: "lowest",
@@ -53,9 +54,16 @@ class Check(models.Model):
     reverse = models.DurationField(default=DEFAULT_REVERSE)
     n_pings = models.IntegerField(default=0)
     last_ping = models.DateTimeField(null=True, blank=True)
-    ping_before_last = models.DateTimeField(null=True, blank=True)
+    ping_before_last = models.DateTimeField(null=True, blank=True, default=DEFAULT_PING_BEFORE_LAST)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
+    priority = models.IntegerField(default=2)
+    escalation_enabled = models.BooleanField(default=False)
+    escalation_interval = models.DurationField(default=DEFAULT_ESCALATION_INTERVAL)
+    escalation_time = models.DateTimeField(null=True, blank=True)
+    escalation_list = models.TextField(null=True)
+    escalation_down = models.BooleanField(default=False)
+    escalation_up = models.BooleanField(default=False)
 
     def name_then_code(self):
         if self.name:
@@ -89,8 +97,7 @@ class Check(models.Model):
             return self.status
 
         now = timezone.now()
-        if not self.ping_before_last:
-            self.ping_before_last = timezone.now()
+
         if (self.last_ping + self.timeout + self.grace > now) \
                 and (self.last_ping - self.ping_before_last > self.timeout - self.reverse):
             return "up"
@@ -117,13 +124,13 @@ class Check(models.Model):
         pause_rel_url = reverse("hc-api-pause", args=[self.code])
 
         result = {
-            "name": self.name,
+            "name": self,
             "ping_url": self.url(),
             "pause_url": settings.SITE_ROOT + pause_rel_url,
             "tags": self.tags,
             "timeout": int(self.timeout.total_seconds()),
             "grace": int(self.grace.total_seconds()),
-            "reverse_grace": int(self.reverse.total_seconds()),
+            "reverse_grace": int(self.reverse_grace.total_seconds()),
             "n_pings": self.n_pings,
             "status": self.get_status()
         }
@@ -190,6 +197,10 @@ class Channel(models.Model):
             return transports.Pushbullet(self)
         elif self.kind == "po":
             return transports.Pushover(self)
+        elif self.kind == "sms":
+            return transports.SMS(self)
+        elif self.kind == "telegram":
+            return transports.Telegram(self)
         else:
             raise NotImplementedError("Unknown channel kind: %s" % self.kind)
 
