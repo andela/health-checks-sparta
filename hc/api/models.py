@@ -20,7 +20,6 @@ STATUSES = (
     ("paused", "Paused")
 )
 DEFAULT_TIMEOUT = td(days=1)
-DEFAULT_PING_BEFORE_LAST = timezone.now()
 DEFAULT_GRACE = td(hours=1)
 DEFAULT_ESCALATION_INTERVAL = td(hours=1)
 DEFAULT_REVERSE = td(minutes=10)
@@ -54,7 +53,7 @@ class Check(models.Model):
     reverse = models.DurationField(default=DEFAULT_REVERSE)
     n_pings = models.IntegerField(default=0)
     last_ping = models.DateTimeField(null=True, blank=True)
-    ping_before_last = models.DateTimeField(null=True, blank=True, default=DEFAULT_PING_BEFORE_LAST)
+    ping_before_last = models.DateTimeField(null=True, blank=True)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
     priority = models.IntegerField(default=2)
@@ -97,7 +96,8 @@ class Check(models.Model):
             return self.status
 
         now = timezone.now()
-
+        if not self.ping_before_last:
+            self.ping_before_last = timezone.now()
         if (self.last_ping + self.timeout + self.grace > now) \
                 and (self.last_ping - self.ping_before_last > self.timeout - self.reverse):
             return "up"
