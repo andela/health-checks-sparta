@@ -123,7 +123,7 @@ class Check(models.Model):
             "tags": self.tags,
             "timeout": int(self.timeout.total_seconds()),
             "grace": int(self.grace.total_seconds()),
-            "reverse_grace": int(self.reverse_grace.total_seconds()),
+            "reverse_grace": int(self.reverse.total_seconds()),
             "n_pings": self.n_pings,
             "status": self.get_status()
         }
