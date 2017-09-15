@@ -20,6 +20,7 @@ STATUSES = (
     ("paused", "Paused")
 )
 DEFAULT_TIMEOUT = td(days=1)
+DEFAULT_PING_BEFORE_LAST = timezone.now()
 DEFAULT_GRACE = td(hours=1)
 DEFAULT_ESCALATION_INTERVAL = td(hours=1)
 DEFAULT_REVERSE = td(minutes=10)
@@ -53,6 +54,7 @@ class Check(models.Model):
     reverse = models.DurationField(default=DEFAULT_REVERSE)
     n_pings = models.IntegerField(default=0)
     last_ping = models.DateTimeField(null=True, blank=True)
+    ping_before_last = models.DateTimeField(null=True, blank=True, default=DEFAULT_PING_BEFORE_LAST)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
     priority = models.IntegerField(default=2)
@@ -96,7 +98,8 @@ class Check(models.Model):
 
         now = timezone.now()
 
-        if self.last_ping + self.timeout + self.grace > now:
+        if (self.last_ping + self.timeout + self.grace > now) \
+                and (self.last_ping - self.ping_before_last > self.timeout - self.reverse):
             return "up"
 
         return "down"
@@ -121,7 +124,7 @@ class Check(models.Model):
         pause_rel_url = reverse("hc-api-pause", args=[self.code])
 
         result = {
-            "name": self.name,
+            "name": self,
             "ping_url": self.url(),
             "pause_url": settings.SITE_ROOT + pause_rel_url,
             "tags": self.tags,
