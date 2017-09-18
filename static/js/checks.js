@@ -82,7 +82,7 @@ $(function () {
         $("#period-slider-value").text(secsToText(rounded));
         $("#update-timeout-timeout").val(rounded);
     });
-    
+
     intervalSlider.noUiSlider.on("update", function(a, b, value) {
         var rounded = Math.round(value);
         $("#interval-slider-value").text(secsToText(rounded));
@@ -117,6 +117,36 @@ $(function () {
         var rounded = Math.round(value);
         $("#grace-slider-value").text(secsToText(rounded));
         $("#update-timeout-grace").val(rounded);
+    });
+
+    var nagSlider = document.getElementById("nag-slider");
+    noUiSlider.create(nagSlider, {
+        start: [20],
+        connect: "lower",
+        range: {
+            'min': [60, 60],
+            '25%': [3600, 3600],
+            '50%': [86400, 86400],
+            '63%': [604800, 604800],
+            '75%': [2592000, 2592000],
+            '88%': [7776000, 7776000],
+            'max': [15552000, 15552000],
+        },
+        pips: {
+            mode: 'values',
+            values: [60, 1800, 3600, 43200, 86400, 604800, 2592000, 7776000, 15552000],
+            density: 3,
+            format: {
+                to: secsToText,
+                from: function() {}
+            }
+        }
+    });
+
+    nagSlider.noUiSlider.on("update", function(a, b, value) {
+        var rounded = Math.round(value);
+        $("#nag-slider-value").text(secsToText(rounded));
+        $("#update-timeout-nag").val(rounded);
     });
 
 
@@ -193,6 +223,7 @@ $(function () {
         periodSlider.noUiSlider.set($this.data("timeout"))
         graceSlider.noUiSlider.set($this.data("grace"))
         reverseGraceSlider.noUiSlider.set($this.data("reverse"))
+        nagSlider.noUiSlider.set($this.data("nag_interval"))
         $('#update-timeout-modal').modal({"show":true, "backdrop":"static"});
 
         return false;
