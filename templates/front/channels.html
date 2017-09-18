@@ -28,6 +28,8 @@
         <tr class="channel-row">
             <td>
             {% if ch.kind == "email" %} Email {% endif %}
+            {% if ch.kind == "sms" %} Sms {% endif %}
+            {% if ch.kind == "telegram" %} Telegram {% endif %}
             {% if ch.kind == "webhook" %} Webhook {% endif %}
             {% if ch.kind == "slack" %} Slack {% endif %}
             {% if ch.kind == "hipchat" %} HipChat {% endif %}
@@ -43,6 +45,10 @@
                     {% if not ch.email_verified %}
                         <span class="channel-unconfirmed">(unconfirmed)</span>
                     {% endif %}
+                {% elif ch.kind == "pd" %}
+                    <span class="sms">Sms</span>
+                    {{ ch.value }}
+                {% elif ch.kind == "victorops" %}
                 {% elif ch.kind == "pd" %}
                     <span class="preposition">API key</span>
                     {{ ch.value }}
@@ -142,6 +148,24 @@
             <p>Get an email message when check goes up or down.</p>
 
             <a href="{% url 'hc-add-email' %}" class="btn btn-primary">Add Integration</a>
+        </li>
+        <li>
+            <img src="{% static 'img/integrations/sms.png' %}"
+                class="icon" alt="SMS icon" />
+
+            <h2>SMS</h2>
+            <p>Receive an SMS when check goes up or down.</p>
+
+            <a href="{% url 'hc-add-sms' %}" class="btn btn-primary">Add Integration</a>
+        </li>
+        <li>
+            <img src="{% static 'img/integrations/telegram.png' %}"
+                class="icon" alt="Telegram icon" />
+
+            <h2>Telegram</h2>
+            <p>Receive a message on Telegram when check goes up or down.</p>
+
+            <a href="{% url 'hc-add-telegram' %}" class="btn btn-primary">Add Integration</a>
         </li>
         <li>
             <img src="{% static 'img/integrations/webhook.png' %}"

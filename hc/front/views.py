@@ -2,7 +2,7 @@ from collections import Counter
 from datetime import timedelta as td
 from itertools import tee
 
-import requests
+import requests, json
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -20,6 +20,8 @@ from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
 from hc.front.models import Blog
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from hc.front.models import FAQnAnswers
+from ..local_settings import TELEGRAM
+import hc.lib.telegram as telegram
 
 
 # from itertools recipes:
@@ -395,11 +397,25 @@ def channels(request):
     return render(request, "front/channels.html", ctx)
 
 
+def get_telegram_id(username):
+    url = "https://api.telegram.org/bot%s/getUpdates" % TELEGRAM['token']
+    data = json.loads(requests.get(url).text)
+    return telegram.get_user_id(data, username)
+
+
 def do_add_channel(request, data):
     form = AddChannelForm(data)
     if form.is_valid():
         channel = form.save(commit=False)
         channel.user = request.team.user
+
+        if channel.kind in ('telegram', 'Telegram'):
+            user_id = get_telegram_id(channel.value)
+            if not user_id:
+                params = {'error': True}
+                return redirect(reverse("hc-add-telegram") + '?failed=1')
+            channel.value = user_id
+
         channel.save()
 
         channel.assign_all_checks()
@@ -468,6 +484,15 @@ def add_email(request):
     ctx = {"page": "channels"}
     return render(request, "integrations/add_email.html", ctx)
 
+@login_required
+def add_sms(request):
+    ctx = {"page": "channels"}
+    return render(request, "integrations/add_sms.html", ctx)
+
+@login_required
+def add_telegram(request):
+    ctx = {"page": "channels"}
+    return render(request, "integrations/add_telegram.html", ctx)
 
 @login_required
 def add_webhook(request):

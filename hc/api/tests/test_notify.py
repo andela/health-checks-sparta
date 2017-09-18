@@ -109,6 +109,17 @@ class NotifyTestCase(BaseTestCase):
 
         # And email should have been sent
         self.assertEqual(len(mail.outbox), 1)
+    
+    def test_sms(self):
+        self._setup_data("sms", "+256773664836")
+        self.channel.notify(self.check)
+
+        n = Notification.objects.get()
+        print(n.__dict__)
+        # self.assertEqual(n.error, "")
+
+        # And sms should have been sent
+        # self.assertEqual(len(mail.outbox), 1)
 
     def test_it_skips_unverified_email(self):
         self._setup_data("email", "alice@example.org", email_verified=False)
