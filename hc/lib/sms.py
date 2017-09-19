@@ -1,13 +1,14 @@
+import os
 from twilio.rest import Client
-from ..local_settings import TWILIO
-# Your Account Sid and Auth Token from twilio.com/user/account
-account_sid = TWILIO["account_sid"]
-auth_token = TWILIO["auth_token"]
+
+account_sid = os.getenv('TWILIO_ACCOUNT_SID')
+auth_token = os.getenv('TWILIO_AUTH_TOKEN')
+from_ = os.getenv('TWILIO_FROM_')
 
 client = Client(account_sid, auth_token)
 
 def send(to, ctx):
-    msg = "" # compose message
+    msg = ""
     
     if(ctx["check"].status == "up"):
         msg = "Your check %s (%s) is up and has been pinged" % (ctx["check"].name, ctx["check"].code)
@@ -19,7 +20,7 @@ def send(to, ctx):
         client.messages.create(
             body=msg,
             to=to,
-            from_=TWILIO["from_"])
+            from_=from_)
             
     except Exception as error:
         print(error)

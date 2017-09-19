@@ -2,7 +2,7 @@ from collections import Counter
 from datetime import timedelta as td
 from itertools import tee
 
-import requests, json
+import requests, json, os
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -20,7 +20,6 @@ from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
 from hc.front.models import Blog
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from hc.front.models import FAQnAnswers
-from ..local_settings import TELEGRAM
 import hc.lib.telegram as telegram
 
 
@@ -398,7 +397,7 @@ def channels(request):
 
 
 def get_telegram_id(username):
-    url = "https://api.telegram.org/bot%s/getUpdates" % TELEGRAM['token']
+    url = "https://api.telegram.org/bot%s/getUpdates" % os.getenv('TELEGRAM_TOKEN')
     data = json.loads(requests.get(url).text)
     return telegram.get_user_id(data, username)
 
