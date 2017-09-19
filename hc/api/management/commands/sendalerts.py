@@ -106,23 +106,3 @@ class Command(BaseCommand):
             if ticks % 60 == 0:
                 formatted = timezone.now().isoformat()
                 self.stdout.write("-- MARK %s --" % formatted)
-
-
-    # def nagging(self):
-    #     pass
-    #     /*
-    #     timeout+grace+last-ping>timezone.now   -->down
-    #     nag?
-    #     schedul
-
-    #     timeout+grace+last-ping>timezone.now+nag-interval > timezone.now() -->nag
-
-    #     while down:
-    #         if nag:
-    #             schedule
-    #         else:
-    #             Stop
-    #     else:
-    #         change status nag false
-
-    #     */
