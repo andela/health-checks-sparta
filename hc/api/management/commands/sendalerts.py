@@ -46,7 +46,7 @@ class Command(BaseCommand):
         
         going_down = query.filter(alert_after__lt=now, status="up")
         going_up = query.filter(alert_after__gt=now, status="down")
-        need_nagging =query.filter(nag_after__gt=now, status="down", nag_status = True)
+        need_nagging =query.filter(nag_after__lte=now, status="down")
         # Don't combine this in one query so Postgres can query using index:
         checks = list(going_down.iterator()) + list(going_up.iterator()) + list(need_nagging.iterator())
         if not checks:
@@ -79,13 +79,10 @@ class Command(BaseCommand):
         check.status = check.get_status()
         check.save()
 
-        now = timezone.now()
-        if check.status == "up":
-            check.nag_status = False
-        else:
-            check.nag_after = now + check.nag_interval
-        check.save()
-
+        if check.status == "down":
+            check.nag_after = (timezone.now() + check.nag_interval)
+            check.save()
+        print(check.nag_after)
         tmpl = "\nSending alert, status=%s, code=%s\n"
         self.stdout.write(tmpl % (check.status, check.code))
         errors = check.send_alert()
@@ -109,3 +106,23 @@ class Command(BaseCommand):
             if ticks % 60 == 0:
                 formatted = timezone.now().isoformat()
                 self.stdout.write("-- MARK %s --" % formatted)
+
+
+    # def nagging(self):
+    #     pass
+    #     /*
+    #     timeout+grace+last-ping>timezone.now   -->down
+    #     nag?
+    #     schedul
+
+    #     timeout+grace+last-ping>timezone.now+nag-interval > timezone.now() -->nag
+
+    #     while down:
+    #         if nag:
+    #             schedule
+    #         else:
+    #             Stop
+    #     else:
+    #         change status nag false
+
+    #     */
