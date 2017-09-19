@@ -1,5 +1,6 @@
+import mock
 from django.test.utils import override_settings
-
+from requests.models import Response
 from hc.api.models import Channel, User
 from hc.test import BaseTestCase
 
@@ -64,3 +65,37 @@ class AddChannelTestCase(BaseTestCase):
         self.client.login(username="alice@example.org", password="password")
         r = self.client.post(url, form)
         assert r.status_code == 400
+    
+    def test_it_adds_telegram(self):
+        url = "/integrations/add/"
+        form = {"kind": "telegram", "value": "jdoe"}
+        response = Response()
+        response.status_code = 200
+        response.json =  lambda: {'result': [{'message': {'from': {'id': 762455, 'first_name': 'john', 'last_name': 'doe', 'username': 'jdoe'}}}]}
+
+        mocked_get = mock.MagicMock(return_value=response)
+
+        with mock.patch('requests.get', mocked_get):
+
+            self.client.login(username="alice@example.org", password="password")
+            r = self.client.post(url, form)
+
+            self.assertRedirects(r, "/integrations/")
+            assert Channel.objects.count() == 1
+    
+    def test_it_redirects_on_invalid_telegram_username(self):
+        url = "/integrations/add/"
+        form = {"kind": "telegram", "value": "invalid"}
+        response = Response()
+        response.status_code = 200
+        response.json = lambda: {'result': [{'message': {'from': {'id': 762455, 'first_name': 'john', 'last_name': 'doe', 'username': 'jdoe'}}}]}
+
+        mocked_get = mock.MagicMock(return_value=response)
+
+        with mock.patch('requests.get', mocked_get):
+
+            self.client.login(username="alice@example.org", password="password")
+            r = self.client.post(url, form)
+
+            self.assertRedirects(r, "/integrations/add_telegram/?failed=1")
+            assert Channel.objects.count() == 0

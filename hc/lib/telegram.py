@@ -1,4 +1,4 @@
-import requests, os
+import requests, os, json
 
 telegram_token = os.getenv('TELEGRAM_TOKEN')
 
@@ -16,5 +16,10 @@ def send(chat_id, ctx):
 
 def get_user_id(data, username):
     for result in data['result']:
-        if result['message']['from']['username'] == username:
+        if 'username' in result['message']['from'].keys() and result['message']['from']['username'] == username:
             return result['message']['from']['id']
+        
+def get_telegram_id(username):
+    url = "https://api.telegram.org/bot%s/getUpdates" % os.getenv('TELEGRAM_TOKEN')
+    data = requests.get(url).json()
+    return get_user_id(data, username)

@@ -396,11 +396,6 @@ def channels(request):
     return render(request, "front/channels.html", ctx)
 
 
-def get_telegram_id(username):
-    url = "https://api.telegram.org/bot%s/getUpdates" % os.getenv('TELEGRAM_TOKEN')
-    data = json.loads(requests.get(url).text)
-    return telegram.get_user_id(data, username)
-
 
 def do_add_channel(request, data):
     form = AddChannelForm(data)
@@ -409,7 +404,7 @@ def do_add_channel(request, data):
         channel.user = request.team.user
 
         if channel.kind in ('telegram', 'Telegram'):
-            user_id = get_telegram_id(channel.value)
+            user_id = telegram.get_telegram_id(channel.value)
             if not user_id:
                 params = {'error': True}
                 return redirect(reverse("hc-add-telegram") + '?failed=1')
