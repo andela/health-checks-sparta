@@ -30,9 +30,6 @@ def ping(request, code):
 
     check.save()
     check.refresh_from_db()
-    check.nag_after = check.alert_after + check.nag_interval
-    check.save()
-    check.refresh_from_db()
 
     ping = Ping(owner=check)
     headers = request.META
