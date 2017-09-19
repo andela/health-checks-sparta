@@ -16,7 +16,7 @@
         </h1>
 
         <ul class="nav nav-tabs">
-            <li role="presentation" 
+            <li role="presentation"
                 {% if page == "checks" %}
                     class="active"
                 {% endif %}>
@@ -130,6 +130,7 @@
             <input type="hidden" name="timeout" id="update-timeout-timeout" />
             <input type="hidden" name="grace" id="update-timeout-grace" />
             <input type="hidden" name="reverse" id="update-timeout-reverse" />
+            <input type="hidden" name="nag_interval" id="update-timeout-nag" />
             <div class="modal-content">
                 <div class="modal-body">
                     <div class="update-timeout-info text-center">
@@ -180,18 +181,36 @@
                     <div id="reverse-grace-slider"></div>
 
                     <div class="update-timeout-terms">
+                            <span
+                                class="update-timeout-label"
+                                data-toggle="tooltip"
+                                title="When the job is down, how long to wait until a reminder is sent.">
+                                Nag Time
+                            </span>
+                            <span
+                                id="nag-slider-value"
+                                class="update-timeout-value">
+                                1 day
+                            </span>
+                        </div>
+
+                        <div id="nag-slider"></div>
+
+                    <div class="update-timeout-nag">
                         <p>
-                            <span>Period</span>
+                            <span>Period   </span>
                             Expected time between pings.
                         </p>
                         <p>
-                            <span>Grace Time</span>
+                            <span>Grace Time   </span>
                             When a check is late, how much time to wait until alert is sent.
                         </p>
                         <p>
                             <span>Reverse Grace Time</span>
                             When check is early, how much time to allow before expected time
                         </p>
+                            <span>Nag Time   </span>
+                        When the job is down, how long to wait until a reminder is sent. </p>
                     </div>
 
                 </div>
