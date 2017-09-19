@@ -22,7 +22,7 @@ STATUSES = (
 DEFAULT_TIMEOUT = td(days=1)
 DEFAULT_GRACE = td(hours=1)
 DEFAULT_NAG_INTERVAL = td(minutes=10)
-CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"), #Why is this naming like this.
+CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"),
                  ("hipchat", "HipChat"),
                  ("slack", "Slack"), ("pd", "PagerDuty"), ("po", "Pushover"),
                  ("victorops", "VictorOps"))
@@ -54,8 +54,7 @@ class Check(models.Model):
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
     nag_interval = models.DurationField(default=DEFAULT_NAG_INTERVAL)
-    nag_after = models.DateTimeField(null=True, blank=True)
-    nag_status = models.BooleanField(default=True)
+    nag_after = models.DateTimeField(null=True)
 
     def name_then_code(self):
         if self.name:
@@ -64,7 +63,7 @@ class Check(models.Model):
         return str(self.code)
 
     def url(self):
-        return settings.PING_ENDPOINT + str(self.code) #How does settings come here ?
+        return settings.PING_ENDPOINT + str(self.code)
 
     def log_url(self):
         return settings.SITE_ROOT + reverse("hc-log", args=[self.code])
@@ -78,7 +77,7 @@ class Check(models.Model):
 
         errors = []
         for channel in self.channel_set.all():
-            error = channel.notify(self) #How is channel availabe here.
+            error = channel.notify(self)
             if error not in ("", "no-op"):
                 errors.append((channel, error))
 
@@ -103,12 +102,6 @@ class Check(models.Model):
         grace_ends = up_ends + self.grace
         return up_ends < timezone.now() < grace_ends
 
-    def in_nag_period(self):
-        if self.status in ("new", "paused", "up"):
-            return False
-        grace_ends = self.last_ping + self.timeout + self.grace
-        return grace_ends > timezone.now()
-
     def assign_all_channels(self):
         if self.user:
             channels = Channel.objects.filter(user=self.user)
@@ -127,6 +120,7 @@ class Check(models.Model):
             "tags": self.tags,
             "timeout": int(self.timeout.total_seconds()),
             "grace": int(self.grace.total_seconds()),
+            "nag_interval": int(self.nag_interval.total_seconds()),
             "n_pings": self.n_pings,
             "status": self.get_status()
         }
