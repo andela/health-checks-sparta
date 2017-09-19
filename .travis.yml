@@ -6,14 +6,15 @@ install:
     - pip install -r requirements.txt
     - pip install braintree coveralls mock mysqlclient
 env:
-  - DB=sqlite
-  - DB=mysql
-  - DB=postgres
   global:
     - TWILIO_ACCOUNT_SID='dummy'
     - TWILIO_AUTH_TOKEN='dummy'
     - TWILIO_FROM_='dummy'
     - TELEGRAM_TOKEN='secrete'
+  matrix:
+    - DB=sqlite
+    - DB=mysql
+    - DB=postgres
 addons:
   postgresql: "9.4"
 before_script:
