@@ -237,3 +237,10 @@ class NotifyTestCase(BaseTestCase):
 
         self.channel.notify(self.check)
         assert Notification.objects.count() == 1
+
+    @patch("twilio.rest.Client.messages")
+    def test_sms(self, mock_get):
+        self._setup_data("sms", "7377")
+
+        self.channel.notify(self.check)
+        assert Notification.objects.count() == 1
