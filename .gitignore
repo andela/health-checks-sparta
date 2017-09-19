@@ -12,3 +12,4 @@ static/.DS_Store
 .env
 .idea/
 migrations/
+*/migrations/
