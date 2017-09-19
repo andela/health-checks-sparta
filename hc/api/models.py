@@ -25,7 +25,7 @@ DEFAULT_GRACE = td(hours=1)
 DEFAULT_ESCALATION_INTERVAL = td(hours=1)
 DEFAULT_REVERSE = td(minutes=10)
 DEFAULT_NAG_INTERVAL = td(minutes=10)
-CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"), #Why is this naming like this.
+CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"),
                  ("hipchat", "HipChat"),
                  ("slack", "Slack"), ("pd", "PagerDuty"), ("po", "Pushover"),
                  ("victorops", "VictorOps"), ("sms", "Sms"), ("telegram", "Telegram"))
@@ -67,8 +67,7 @@ class Check(models.Model):
     escalation_down = models.BooleanField(default=False)
     escalation_up = models.BooleanField(default=False)
     nag_interval = models.DurationField(default=DEFAULT_NAG_INTERVAL)
-    nag_after = models.DateTimeField(null=True, blank=True)
-    nag_status = models.BooleanField(default=True)
+    nag_after = models.DateTimeField(null=True)
 
     def name_then_code(self):
         if self.name:
@@ -77,7 +76,7 @@ class Check(models.Model):
         return str(self.code)
 
     def url(self):
-        return settings.PING_ENDPOINT + str(self.code) #How does settings come here ?
+        return settings.PING_ENDPOINT + str(self.code)
 
     def log_url(self):
         return settings.SITE_ROOT + reverse("hc-log", args=[self.code])
@@ -91,7 +90,7 @@ class Check(models.Model):
 
         errors = []
         for channel in self.channel_set.all():
-            error = channel.notify(self) #How is channel availabe here.
+            error = channel.notify(self)
             if error not in ("", "no-op"):
                 errors.append((channel, error))
 
@@ -137,6 +136,7 @@ class Check(models.Model):
             "timeout": int(self.timeout.total_seconds()),
             "grace": int(self.grace.total_seconds()),
             "reverse_grace": int(self.reverse.total_seconds()),
+            "nag_interval": int(self.nag_interval.total_seconds()),
             "n_pings": self.n_pings,
             "status": self.get_status()
         }
