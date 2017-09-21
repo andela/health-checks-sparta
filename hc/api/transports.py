@@ -5,7 +5,7 @@ import json
 import requests
 from six.moves.urllib.parse import quote
 
-from hc.lib import emails
+from hc.lib import emails, sms, telegram
 
 
 def tmpl(template_name, **ctx):
@@ -216,3 +216,25 @@ class VictorOps(HttpTransport):
         }
 
         return self.post(self.channel.value, payload)
+
+class Telegram(Transport):
+    def notify(self, check):
+
+        ctx = {
+            "check": check,
+            "checks": self.checks(),
+            "now": timezone.now()
+        }
+
+        telegram.send(self.channel.value, ctx)
+
+class SMS(HttpTransport):
+    def notify(self, check):
+
+        ctx = {
+            "check": check,
+            "checks": self.checks(),
+            "now": timezone.now()
+        }
+        
+        return sms.send(self.channel.value, ctx)
