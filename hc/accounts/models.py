@@ -19,7 +19,9 @@ class Profile(models.Model):
     team_name = models.CharField(max_length=200, blank=True)
     team_access_allowed = models.BooleanField(default=False)
     next_report_date = models.DateTimeField(null=True, blank=True)
-    reports_allowed = models.BooleanField(default=True)
+    daily_reports_allowed = models.BooleanField(default=False)
+    monthly_reports_allowed = models.BooleanField(default=True)
+    weekly_reports_allowed = models.BooleanField(default=False)
     ping_log_limit = models.IntegerField(default=100)
     token = models.CharField(max_length=128, blank=True)
     api_key = models.CharField(max_length=128, blank=True)
@@ -56,15 +58,70 @@ class Profile(models.Model):
     def send_report(self):
         # reset next report date first:
         now = timezone.now()
-        self.next_report_date = now + timedelta(days=30)
-        self.save()
+
+        def save_daily_reports():
+            self.next_report_date = now + timedelta(days=1)
+            self.save()
+
+        def save_weekly_reports():
+            self.next_report_date = now + timedelta(days=7)
+            self.save()
+
+        def save_monthly_reports():
+            self.next_report_date = now + timedelta(days=30)
+            self.save()
+
+        def set_status():
+            if self.daily_reports_allowed:
+                return "daily"
+            elif self.weekly_reports_allowed:
+                return "weekly"
+            else:
+                return "monthly"
+
+        def set_checks():
+            if self.daily_reports_allowed:
+                return self.user.check_set.filter(created__date=now.date()).order_by("created")
+
+            elif self.weekly_reports_allowed:
+                start_date = now.date() - timedelta(days=7)
+                return self.user.check_set.filter(created__gt=start_date).order_by("created")
+
+            return self.user.check_set.order_by("created")
+
+        if self.daily_reports_allowed:
+            save_daily_reports()
+
+        elif self.weekly_reports_allowed and not all(
+                [self.daily_reports_allowed, self.monthly_reports_allowed]):
+            save_weekly_reports()
+
+        elif self.monthly_reports_allowed and not all(
+                [self.weekly_reports_allowed, self.daily_reports_allowed]):
+            save_monthly_reports()
+
+        elif self.daily_reports_allowed and \
+                (self.weekly_reports_allowed or self.monthly_reports_allowed):
+            save_daily_reports()
+
+        elif self.monthly_reports_allowed and self.weekly_reports_allowed:
+            save_weekly_reports()
+
+        elif all(
+                [self.monthly_reports_allowed, self.weekly_reports_allowed,
+                 self.daily_reports_allowed]):
+            save_daily_reports()
+
+        else:
+            save_daily_reports()
 
         token = signing.Signer().sign(uuid.uuid4())
         path = reverse("hc-unsubscribe-reports", args=[self.user.username])
         unsub_link = "%s%s?token=%s" % (settings.SITE_ROOT, path, token)
 
         ctx = {
-            "checks": self.user.check_set.order_by("created"),
+            "checks": set_checks(),
+            "status": set_status(),
             "now": now,
             "unsub_link": unsub_link
         }
