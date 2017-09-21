@@ -22,7 +22,7 @@ before_script:
   - mysql -e 'CREATE DATABASE hc;'
   - python manage.py migrate
 script:
-  - python manage.py makemigrations
+  - yes | python manage.py makemigrations
   - python manage.py migrate
   - coverage run --omit=*/tests/* --source=hc manage.py test
 after_success: coveralls
