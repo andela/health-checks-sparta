@@ -12,5 +12,3 @@ static/.DS_Store
 .vscode/
 .env
 .idea/
-migrations/
-*/migrations/
