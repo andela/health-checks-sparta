@@ -1,0 +1,41 @@
+{% load hc_extras humanize %}
+<table id="checks-table" class="table hidden-xs">
+    <tr>
+        <th></th>
+        <th class="th-name">Team member</th>
+        <th style="text-align: right;">Priority</th>
+        <th></th>
+    </tr>
+    {% for check in checks %}
+    <tr class="checks-row">
+        <td class="indicator-cell">
+            otoo
+        </td>
+        <td class="name-cell">
+            1
+        </td>
+    </tr>
+    {% endfor %}
+
+    <tr class="priority-row">
+        <td></td>
+        <td style="padding-left: 21px;">
+            patrick.lu@example.org
+        </td>
+        <td style="text-align: right;">
+            1
+        </td>
+        <td></td>
+    </tr>
+    <tr class="priority-row">
+            <td></td>
+            <td style="padding-left: 21px;">
+                jp.the.genius@example.org
+            </td>
+            <td style="text-align: right;">
+                1
+            </td>
+            <td></td>
+        </tr>
+
+</table>

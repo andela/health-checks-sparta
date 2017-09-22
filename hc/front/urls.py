@@ -8,6 +8,7 @@ check_urls = [
     url(r'^escalations/$', views.escalation_matrix, name="hc-escalation-matrix"),
     url(r'^timeout/$', views.update_timeout, name="hc-update-timeout"),
     url(r'^pause/$', views.pause, name="hc-pause"),
+    url(r'^priority-list/$', views.priority_list, name="hc-priority-list"),
     url(r'^remove/$', views.remove_check, name="hc-remove-check"),
     url(r'^log/$', views.log, name="hc-log"),
 ]

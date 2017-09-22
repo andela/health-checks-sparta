@@ -706,3 +706,8 @@ def support(request):
     qnas_list = list(qnas)
     ctx = {"qnas": qnas_list}
     return render(request, "front/support.html", ctx)
+
+@login_required
+def priority_list(request, code):
+    ctx = {"page": "priorities"}
+    return render(request, "front/my_priorities.html", ctx)

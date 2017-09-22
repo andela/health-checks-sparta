@@ -108,6 +108,11 @@
                         data-list="{{ check.escalation_list }}"
                         data-url="{% url 'hc-escalation-matrix' check.code %}">
                         Escalation Matrix</a></li>
+                        <li>
+                            <a href="{% url 'hc-priority-list' check.code %}">
+                                Priority list
+                            </a>
+                        </li>
                     <li role="separator" class="divider"></li>
                     <li>
                         <a href="{% url 'hc-log' check.code %}">
