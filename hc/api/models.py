@@ -200,9 +200,9 @@ class Channel(models.Model):
         elif self.kind == "po":
             return transports.Pushover(self)
         elif self.kind == "sms":
-             return transports.SMS(self)
+            return transports.SMS(self)
         elif self.kind == "telegram":
-             return transports.Telegram(self)
+            return transports.Telegram(self)
         else:
             raise NotImplementedError("Unknown channel kind: %s" % self.kind)
 
