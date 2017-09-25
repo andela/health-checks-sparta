@@ -22,6 +22,7 @@ from hc.front.models import Blog
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from hc.front.models import FAQnAnswers
 import hc.lib.telegram as telegram
+from hc.accounts.models import Member
 
 
 # from itertools recipes:
@@ -34,9 +35,20 @@ def pairwise(iterable):
 
 @login_required
 def my_checks(request):
-    
-    q = Check.objects.filter(user=request.team.user).order_by("-priority")
-    checks = list(q)
+    if request.has_team:
+        if request.user.id == request.team.user.id:
+            q1 = Check.objects.filter(user=request.user).order_by("-priority")
+        else:
+            m2 = Member.objects.filter(user=request.user)
+            q2 = [member.checks.all() for member in m2]
+            q1 = []
+            for check in list(q2):
+                for x in check:
+                    q1.append(x)
+        checks = list(q1)
+    else:
+        q1 = Check.objects.filter(user=request.user).order_by("-priority")
+        checks = list(q1)
     counter = Counter()
     down_tags, grace_tags = set(), set()
     for check in checks:

@@ -11,6 +11,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from hc.lib import emails
+from hc.api.models import Check
 
 
 class Profile(models.Model):
@@ -128,9 +129,14 @@ class Profile(models.Model):
 
         emails.report(self.user.email, ctx)
 
-    def invite(self, user):
+    def invite(self, user, check_ids):
+        check_objects = [Check.objects.get(pk=int(id)) for id in check_ids]
+
         member = Member(team=self, user=user)
         member.save()
+        member.checks.add(*check_objects)
+        member.save()
+        
 
         # Switch the invited user over to the new team so they
         # notice the new team on next visit:
@@ -143,3 +149,4 @@ class Profile(models.Model):
 class Member(models.Model):
     team = models.ForeignKey(Profile)
     user = models.ForeignKey(User)
+    checks=models.ManyToManyField(Check)

@@ -305,6 +305,21 @@
                                 placeholder="friend@example.org">
                         </div>
                     </div>
+                    <div style="margin: 13px"> 
+                        <p> Select the checks the team member owns </p>
+                        <div style="overflow-y: scroll;">
+                            <ul class="list-group">
+                                {% for check in checks %}
+                                    <li class="list-group-item">
+                                        <input type="checkbox" name="checks" value="{{check.id}}"> 
+                                        <span class="my-checks-url">
+                                            <span class="base">{{ ping_endpoint }}</span>{{ check.code }}
+                                        </span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
