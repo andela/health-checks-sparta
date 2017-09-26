@@ -2,6 +2,7 @@ import uuid
 import re
 
 from django.contrib import messages
+from django.conf import settings
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import authenticate
@@ -170,12 +171,14 @@ def profile(request):
             if form.is_valid():
 
                 email = form.cleaned_data["email"]
+                selected_ids = request.POST.getlist("checks")
+
                 try:
                     user = User.objects.get(email=email)
                 except User.DoesNotExist:
                     user = _make_user(email)
 
-                profile.invite(user)
+                profile.invite(user, selected_ids)
                 messages.success(request, "Invitation to %s sent!" % email)
         elif "remove_team_member" in request.POST:
             form = RemoveTeamMemberForm(request.POST)
@@ -201,7 +204,8 @@ def profile(request):
                 messages.success(request, "Team Name updated!")
 
     tags = set()
-    for check in Check.objects.filter(user=request.team.user):
+    checks = Check.objects.filter(user=request.team.user)
+    for check in checks:
         tags.update(check.tags_list())
 
     username = request.team.user.username
@@ -216,7 +220,9 @@ def profile(request):
         "page": "profile",
         "badge_urls": badge_urls,
         "profile": profile,
-        "show_api_key": show_api_key
+        "show_api_key": show_api_key,
+        "checks": checks,
+        "ping_endpoint": settings.PING_ENDPOINT
     }
 
     return render(request, "accounts/profile.html", ctx)

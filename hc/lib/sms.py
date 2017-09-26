@@ -5,7 +5,7 @@ account_sid = os.getenv('TWILIO_ACCOUNT_SID')
 auth_token = os.getenv('TWILIO_AUTH_TOKEN')
 from_ = os.getenv('TWILIO_FROM_')
 
-client = Client(account_sid, auth_token)
+#client = Client(account_sid, auth_token)
 
 def send(to, ctx):
     msg = ""

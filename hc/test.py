@@ -27,8 +27,8 @@ class BaseTestCase(TransactionTestCase):
         self.bobs_profile = Profile(user=self.bob)
         self.bobs_profile.current_team = self.profile
         self.bobs_profile.save()
-        member = Member(team=self.profile, user=self.bob)
-        member.save()
+        self.member = Member(team=self.profile, user=self.bob)
+        self.member.save()
 
         self.charlie = User(username="charlie", email="charlie@example.org")
         self.charlie.set_password("password")

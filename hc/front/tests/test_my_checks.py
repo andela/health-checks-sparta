@@ -1,4 +1,5 @@
 from hc.api.models import Check
+from hc.accounts.models import Member
 from hc.test import BaseTestCase
 from datetime import timedelta as td
 from django.utils import timezone
@@ -18,7 +19,7 @@ class MyChecksTestCase(BaseTestCase):
         self.check.save()
 
     def test_it_works(self):
-        for email in ("alice@example.org", "bob@example.org"):
+        for email in ("alice@example.org"):
             self.client.login(username=email, password="password")
             r = self.client.get("/checks/")
             self.assertContains(r, "Alice Was Here", status_code=200)
@@ -113,3 +114,19 @@ class MyChecksTestCase(BaseTestCase):
     def post_priority(self):
         return self.client.post('/checks/' + str(self.check.code) + '/priority/',
                                 { "priority": 3 })
+
+    def test_it_does_not_show_unassigned_checks(self):
+        self.client.login(username='bob@example.org', password="password")
+        r = self.client.get("/checks/")
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("Alice Was Here", r)
+
+    def test_it_shows_only_checks_assigned(self):
+        self.client.login(username='bob@example.org', password="password")
+        member = Member(team=self.bobs_profile.current_team, user=self.bob)
+        member.save()
+        member.checks.add(self.check)
+        member.save()
+        r = self.client.get("/checks/")
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Alice Was Here")

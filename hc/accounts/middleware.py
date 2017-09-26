@@ -19,7 +19,9 @@ class TeamAccessMiddleware(object):
 
             if profile.current_team:
                 request.team = profile.current_team
+                request.has_team = True
             else:
                 request.team = profile
+                request.has_team = False
 
         return self.get_response(request)

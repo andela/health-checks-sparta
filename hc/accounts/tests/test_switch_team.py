@@ -17,7 +17,7 @@ class SwitchTeamTestCase(BaseTestCase):
         url = "/accounts/switch_team/%s/" % self.alice.username
         response = self.client.get(url, follow=True)
         self.assertRedirects(response, '/checks/')
-        self.assertContains(response, "This belongs to Alice")
+        self.assertNotContains(response, "This belongs to Alice")
 
     def test_it_checks_team_membership(self):
         """ Logs in charlie who is not a member of alice's team and try's
