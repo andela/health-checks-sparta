@@ -20,6 +20,7 @@ class CheckModelTestCase(TestCase):
 
         check.status = "up"
         check.last_ping = timezone.now() - timedelta(days=1, minutes=30)
+        check.ping_before_last = timezone.now() - timedelta(days=2, minutes=30)
 
         self.assertEqual(check.in_grace_period(), True)
         self.assertEqual(check.get_status(), "up")

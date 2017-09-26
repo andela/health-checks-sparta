@@ -18,15 +18,16 @@ class NameTagsForm(forms.Form):
 
 class PriorityForm(forms.Form):
     priority = forms.IntegerField()
-
+ 
 class EscalationMatrixForm(forms.Form):
     enabled = forms.BooleanField()
     interval = forms.IntegerField(min_value=60, max_value=2592000)
     emails = forms.CharField()
 
 class TimeoutForm(forms.Form):
-    timeout = forms.IntegerField(min_value=60, max_value=15552000)
-    grace = forms.IntegerField(min_value=60, max_value=15552000)
+    timeout = forms.IntegerField(min_value=60, max_value=2592000)
+    grace = forms.IntegerField(min_value=60, max_value=2592000)
+    reverse = forms.IntegerField(min_value=60, max_value=2592000)
 
 
 class AddChannelForm(forms.ModelForm):
