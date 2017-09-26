@@ -18,13 +18,10 @@ env:
 addons:
   postgresql: "9.4"
 before_script:
-  - psql -c "CREATE DATABASE hc;" -U postgres
-  - mysql -e 'CREATE DATABASE hc;'
-  - python manage.py migrate
-script:
-  - yes | python manage.py makemigrations
+  - createdb hc
   - python manage.py makemigrations
   - python manage.py migrate
+script:
   - coverage run --omit=*/tests/* --source=hc manage.py test
 after_success: coveralls
 cache: pip
