@@ -1,12 +1,12 @@
 """ Defines a base test for all other tests """
 
 from django.contrib.auth.models import User
-from django.test import TransactionTestCase
+from django.test import TestCase
 
 from hc.accounts.models import Member, Profile
 
 
-class BaseTestCase(TransactionTestCase):
+class BaseTestCase(TestCase):
     """ Sets up parameters required by all tests """
 
     def setUp(self):
