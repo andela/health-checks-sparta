@@ -6,13 +6,8 @@
         <th>Ping URL</th>
         <th class="th-period">
             Period <br />
-<<<<<<< HEAD
-            <span class="checks-subline">Grace</span><br/>
-            <span class="checks-subline">Reverse Grace</span>
-=======
             <span class="checks-subline">Grace <br/> </span>
             <span class="checks-subline">nag_interval</span>
->>>>>>> ch: add nag_interval to the front end table
         </th>
 
         <th>Last Ping</th>
@@ -64,18 +59,12 @@
                 data-url="{% url 'hc-update-timeout' check.code %}"
                 data-timeout="{{ check.timeout.total_seconds }}"
                 data-grace="{{ check.grace.total_seconds }}"
-                data-reverse="{{ check.reverse.total_seconds }}"
                 data-nag_interval="{{ check.nag_interval.total_seconds }}"
                 class="timeout-grace">
                 {{ check.timeout|hc_duration }}
                 <br />
                 <span class="checks-subline">
                 {{ check.grace|hc_duration }}
-                </span>
-                <br />
-                <span class="checks-subline">
-                {{ check.reverse|hc_duration }}
-                </span>
                 </span> <br />
                 <span class="checks-subline"> {{ check.nag_interval|hc_duration }} </span>
             </span>

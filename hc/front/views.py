@@ -35,35 +35,6 @@ def pairwise(iterable):
 
 @login_required
 def my_checks(request):
-    if request.has_team:
-        if request.user.id == request.team.user.id:
-            q1 = Check.objects.filter(user=request.user).order_by("-priority")
-        else:
-            m2 = Member.objects.filter(user=request.user)
-            q2 = [member.checks.all() for member in m2]
-            q1 = []
-            for check in list(q2):
-                for x in check:
-                    q1.append(x)
-        checks = list(q1)
-    else:
-        q1 = Check.objects.filter(user=request.user).order_by("-priority")
-        checks = list(q1)
-    counter = Counter()
-    down_tags, grace_tags = set(), set()
-    for check in checks:
-        status = check.get_status()
-        for tag in check.tags_list():
-            if tag == "":
-                continue
-
-            counter[tag] += 1
-
-            if status == "down":
-                down_tags.add(tag)
-            elif check.in_grace_period():
-                grace_tags.add(tag)
-    ctx = {
 
     q = Check.objects.filter(user=request.team.user).order_by("created")
     checks = list(q)
@@ -329,7 +300,6 @@ def update_timeout(request, code):
     if form.is_valid():
         check.timeout = td(seconds=form.cleaned_data["timeout"])
         check.grace = td(seconds=form.cleaned_data["grace"])
-        check.reverse = td(seconds=form.cleaned_data["reverse"])
         check.nag_interval = td(seconds=form.cleaned_data["nag_interval"])
         check.save()
 

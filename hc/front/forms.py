@@ -29,6 +29,7 @@ class TimeoutForm(forms.Form):
     grace = forms.IntegerField(min_value=60, max_value=2592000)
     reverse = forms.IntegerField(min_value=60, max_value=2592000)
     timeout = forms.IntegerField(min_value=60, max_value=15552000)
+    grace = forms.IntegerField(min_value=60, max_value=15552000)
     nag_interval = forms.IntegerField(min_value=60, max_value=15552000)
 
 

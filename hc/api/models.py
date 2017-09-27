@@ -22,8 +22,6 @@ STATUSES = (
 DEFAULT_TIMEOUT = td(days=1)
 DEFAULT_PING_BEFORE_LAST = timezone.now()
 DEFAULT_GRACE = td(hours=1)
-DEFAULT_ESCALATION_INTERVAL = td(hours=1)
-DEFAULT_REVERSE = td(minutes=10)
 DEFAULT_NAG_INTERVAL = td(hours=1)
 CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"),
                  ("hipchat", "HipChat"),
@@ -59,13 +57,6 @@ class Check(models.Model):
     ping_before_last = models.DateTimeField(null=True, blank=True)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
-    priority = models.IntegerField(default=2)
-    escalation_enabled = models.BooleanField(default=False)
-    escalation_interval = models.DurationField(default=DEFAULT_ESCALATION_INTERVAL)
-    escalation_time = models.DateTimeField(null=True, blank=True)
-    escalation_list = models.TextField(null=True)
-    escalation_down = models.BooleanField(default=False)
-    escalation_up = models.BooleanField(default=False)
     nag_interval = models.DurationField(default=DEFAULT_NAG_INTERVAL)
     nag_after = models.DateTimeField(null=True)
 
@@ -135,7 +126,6 @@ class Check(models.Model):
             "tags": self.tags,
             "timeout": int(self.timeout.total_seconds()),
             "grace": int(self.grace.total_seconds()),
-            "reverse_grace": int(self.reverse.total_seconds()),
             "nag_interval": int(self.nag_interval.total_seconds()),
             "n_pings": self.n_pings,
             "status": self.get_status()
