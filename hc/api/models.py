@@ -24,7 +24,7 @@ DEFAULT_PING_BEFORE_LAST = timezone.now()
 DEFAULT_GRACE = td(hours=1)
 DEFAULT_ESCALATION_INTERVAL = td(hours=1)
 DEFAULT_REVERSE = td(minutes=10)
-DEFAULT_NAG_INTERVAL = td(minutes=10)
+DEFAULT_NAG_INTERVAL = td(hours=1)
 CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"),
                  ("hipchat", "HipChat"),
                  ("slack", "Slack"), ("pd", "PagerDuty"), ("po", "Pushover"),
