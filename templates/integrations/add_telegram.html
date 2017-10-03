@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load compress humanize staticfiles hc_extras %}
+
+{% block title %}Notification Channels - healthchecks.io{% endblock %}
+
+
+{% block content %}
+<div class="row">
+<div class="col-sm-12">
+    <h1>Telegram</h1>
+
+    <p>Get a Telegram message when check goes up or down.</p>
+
+    <p>
+        <strong>Tip:</strong>
+        Add multiple Telegram Ids, to notify multiple team members.
+    </p>
+
+    <h2>Integration Settings</h2>
+
+    <form method="post" class="form-horizontal" action="{% url 'hc-add-channel' %}">
+        {% csrf_token %}
+        <input type="hidden" name="kind" value="telegram" />
+        <div class="form-group">
+            <label for="id_telegram" class="col-sm-2 control-label">Telegram username</label>
+            <div class="col-sm-3">
+                <input
+                    id="id_telegram"
+                    type="text"
+                    class="form-control"
+                    name="value"
+                    placeholder="Telegram username">
+                    {% if 'failed' in request.get_full_path %}
+                        <span class="text-danger" style="display: inline-block;margin-top: 8px;">Unknown Telegram username. You need to initiate a chat with our bot.</span>
+                    {% endif %}
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary">Save Integration</button>
+            </div>
+        </div>
+    </form>
+
+    <h2>How to integrate</h2>
+    <p>If your team uses <a href="https://telegram.org/">Telegram</a>,
+        you can set up healthchecks.io to post status updates directly to an
+        appropriate Telegram chat or user.</p>
+    <div class="row ai-step">
+        <div class="col-sm-6">
+            <span class="step-no">1</span>
+            <p>
+                From your Telegram client, look up and send a message to
+                <strong>Health checks Bot (Username: @healthcheckssuper_bot)</strong>. 
+            </p>
+        </div>
+    </div>
+    <div class="row ai-step">
+        <div class="col-sm-6">
+            <span class="step-no">2</span>
+            <p>
+                Enter your usename to in the field above and submit the form.
+            </p>
+        </div>
+    </div>
+</div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+{% compress js %}
+<script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+{% endcompress %}
+{% endblock %}

@@ -229,3 +229,18 @@ class NotifyTestCase(BaseTestCase):
         args, kwargs = mock_post.call_args
         json = kwargs["json"]
         self.assertEqual(json["message_type"], "CRITICAL")
+        
+    @patch("hc.api.transports.requests.request")
+    def test_telegram(self, mock_get):
+        self._setup_data("telegram", "7377")
+        mock_get.return_value.status_code = 200
+
+        self.channel.notify(self.check)
+        assert Notification.objects.count() == 1
+
+    @patch("twilio.rest.Client.messages")
+    def test_sms(self, mock_get):
+        self._setup_data("sms", "7377")
+
+        self.channel.notify(self.check)
+        assert Notification.objects.count() == 1

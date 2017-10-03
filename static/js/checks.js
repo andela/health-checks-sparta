@@ -4,7 +4,8 @@ $(function () {
     var HOUR = {name: "hour", nsecs: MINUTE.nsecs * 60};
     var DAY = {name: "day", nsecs: HOUR.nsecs * 24};
     var WEEK = {name: "week", nsecs: DAY.nsecs * 7};
-    var UNITS = [WEEK, DAY, HOUR, MINUTE];
+    var MONTH = {name: "month", nsecs: DAY.nsecs * 30};
+    var UNITS = [MONTH, WEEK, DAY, HOUR, MINUTE];
 
     var secsToText = function(total) {
         var remainingSeconds = Math.floor(total);
@@ -36,6 +37,30 @@ $(function () {
         connect: "lower",
         range: {
             'min': [60, 60],
+            '25%': [3600, 3600],
+            '50%': [86400, 86400],
+            '63%': [604800, 604800],
+            '75%': [2592000, 2592000],
+            '88%': [7776000, 7776000],
+            'max': [15552000, 15552000],
+        },
+        pips: {
+            mode: 'values',
+            values: [60, 1800, 3600, 43200, 86400, 604800, 2592000, 7776000, 15552000],
+            density: 3,
+            format: {
+                to: secsToText,
+                from: function() {}
+            }
+        }
+    });
+
+    var intervalSlider = document.getElementById("interval-slider");
+    noUiSlider.create(intervalSlider, {
+        start: [20],
+        connect: "lower",
+        range: {
+            'min': [60, 60],
             '33%': [3600, 3600],
             '66%': [86400, 86400],
             '83%': [604800, 604800],
@@ -57,10 +82,46 @@ $(function () {
         $("#period-slider-value").text(secsToText(rounded));
         $("#update-timeout-timeout").val(rounded);
     });
-
+    
+    intervalSlider.noUiSlider.on("update", function(a, b, value) {
+        var rounded = Math.round(value);
+        $("#interval-slider-value").text(secsToText(rounded));
+        $("#update-interval").val(rounded);
+    });
 
     var graceSlider = document.getElementById("grace-slider");
     noUiSlider.create(graceSlider, {
+        start: [20],
+        connect: "lower",
+        range: {
+            'min': [60, 60],
+            '25%': [3600, 3600],
+            '50%': [86400, 86400],
+            '63%': [604800, 604800],
+            '75%': [2592000, 2592000],
+            '88%': [7776000, 7776000],
+            'max': [15552000, 15552000],
+        },
+        pips: {
+            mode: 'values',
+            values: [60, 1800, 3600, 43200, 86400, 604800, 2592000, 7776000, 15552000],
+            density: 3,
+            format: {
+                to: secsToText,
+                from: function() {}
+            }
+        }
+    });
+
+    graceSlider.noUiSlider.on("update", function(a, b, value) {
+        var rounded = Math.round(value);
+        $("#grace-slider-value").text(secsToText(rounded));
+        $("#update-timeout-grace").val(rounded);
+    });
+
+
+    var reverseGraceSlider = document.getElementById("reverse-grace-slider");
+    noUiSlider.create(reverseGraceSlider, {
         start: [20],
         connect: "lower",
         range: {
@@ -81,10 +142,10 @@ $(function () {
         }
     });
 
-    graceSlider.noUiSlider.on("update", function(a, b, value) {
+    reverseGraceSlider.noUiSlider.on("update", function(a, b, value) {
         var rounded = Math.round(value);
-        $("#grace-slider-value").text(secsToText(rounded));
-        $("#update-timeout-grace").val(rounded);
+        $("#reverse-grace-slider-value").text(secsToText(rounded));
+        $("#update-timeout-reverse").val(rounded);
     });
 
 
@@ -102,12 +163,36 @@ $(function () {
         return false;
     });
 
+    $(".check-priority").click(function() {
+        var $this = $(this);
+
+        $("#update-priority-form").attr("action", $this.data("url"));
+        $("#update-priority-input").val($this.data("priority"));
+        $('#update-priority-modal').modal("show");
+        $("#update-priority-input").focus();
+
+        return false;
+    });
+
+    $(".escalation-matrix").click(function() {
+        var $this = $(this);
+        $("#escalation-matrix-form").attr("action", $this.data("url"));
+        $("#enabled-input").val($this.data("enabled"));
+        intervalSlider.noUiSlider.set($this.data("interval"))
+        $("#emails-input").val($this.data("list"));
+        $('#escalation-matrix-modal').modal({"show":true, "backdrop":"static"});
+        $("#enabled-input").focus();
+
+        return false;
+    });
+
     $(".timeout-grace").click(function() {
         var $this = $(this);
 
         $("#update-timeout-form").attr("action", $this.data("url"));
         periodSlider.noUiSlider.set($this.data("timeout"))
         graceSlider.noUiSlider.set($this.data("grace"))
+        reverseGraceSlider.noUiSlider.set($this.data("reverse"))
         $('#update-timeout-modal').modal({"show":true, "backdrop":"static"});
 
         return false;

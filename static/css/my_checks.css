@@ -23,6 +23,14 @@
 
 }
 
+.update-interval-value {
+    display: inline-block;
+    width: 100px;
+    text-align: left;
+    white-space: nowrap;
+
+}
+
 #period-slider {
     margin: 20px 50px 80px 50px;
 }
@@ -30,6 +38,15 @@
 #period-slider.noUi-connect {
   background: #22bc66;
 }
+
+#interval-slider {
+    margin: 10px 15px 40px 15px;
+}
+
+#interval-slider.noUi-connect {
+  background: #22bc66;
+}
+
 
 #grace-slider {
     margin: 20px 50px 110px 50px;
@@ -39,11 +56,23 @@
   background: #f0ad4e;
 }
 
-#period-slider .noUi-value, #grace-slider .noUi-value {
+#reverse-grace-slider {
+    margin: 20px 50px 110px 50px;
+}
+
+#reverse-grace-slider.noUi-connect {
+  background: #15D0F9;
+}
+
+#period-slider .noUi-value, #grace-slider .noUi-value, #reverse-grace-slider .noUi-value {
     width: 60px;
     margin-left: -30px;
 }
 
+#interval-slider .noUi-value, #grace-slider .noUi-value {
+    width: 60px;
+    margin-left: -30px;
+}
 .update-timeout-terms {
     color: #999;
 }
@@ -71,3 +100,10 @@
  #show-usage-modal .tab-content {
      margin-top: 15px;
  }
+
+ .mb-20 {
+     margin-bottom: 20px;
+ }
+ .interval-help {
+    margin-top: 50px;
+}

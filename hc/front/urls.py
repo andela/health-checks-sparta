@@ -4,6 +4,8 @@ from hc.front import views
 
 check_urls = [
     url(r'^name/$', views.update_name, name="hc-update-name"),
+    url(r'^priority/$', views.update_priority, name="hc-update-priority"),
+    url(r'^escalations/$', views.escalation_matrix, name="hc-escalation-matrix"),
     url(r'^timeout/$', views.update_timeout, name="hc-update-timeout"),
     url(r'^pause/$', views.pause, name="hc-pause"),
     url(r'^remove/$', views.remove_check, name="hc-remove-check"),
@@ -14,6 +16,8 @@ channel_urls = [
     url(r'^$', views.channels, name="hc-channels"),
     url(r'^add/$', views.add_channel, name="hc-add-channel"),
     url(r'^add_email/$', views.add_email, name="hc-add-email"),
+    url(r'^add_sms/$', views.add_sms, name="hc-add-sms"),
+    url(r'^add_telegram/$', views.add_telegram, name="hc-add-telegram"),
     url(r'^add_webhook/$', views.add_webhook, name="hc-add-webhook"),
     url(r'^add_pd/$', views.add_pd, name="hc-add-pd"),
     url(r'^add_slack/$', views.add_slack, name="hc-add-slack"),
@@ -31,6 +35,7 @@ channel_urls = [
 urlpatterns = [
     url(r'^$', views.index, name="hc-index"),
     url(r'^checks/$', views.my_checks, name="hc-checks"),
+    url(r'^checks/unresolved$', views.my_checks, name="hc-checks-unresolved"),
     url(r'^blog/$', views.blogs, name="hc-blogs"),
     url(r'^blog/(\d+)$', views.single_blog, name="hc-single-blog"),
     url(r'^blog/add/$', views.add_blog_post, name="hc-add-post"),
@@ -45,4 +50,5 @@ urlpatterns = [
     url(r'^about/$', views.about, name="hc-about"),
     url(r'^privacy/$', views.privacy, name="hc-privacy"),
     url(r'^terms/$', views.terms, name="hc-terms"),
+    url(r'^support/$', views.support, name="hc-support"),
 ]

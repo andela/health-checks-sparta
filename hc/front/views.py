@@ -2,7 +2,7 @@ from collections import Counter
 from datetime import timedelta as td
 from itertools import tee
 
-import requests
+import requests, json, os
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -16,9 +16,13 @@ from django.utils.six.moves.urllib.parse import urlencode
 from hc.api.decorators import uuid_or_400
 from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
 from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
-                            TimeoutForm, AddBlogPostForm)
+                            TimeoutForm, AddBlogPostForm, PriorityForm,
+                            EscalationMatrixForm)
 from hc.front.models import Blog
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from hc.front.models import FAQnAnswers
+import hc.lib.telegram as telegram
+from hc.accounts.models import Member
 
 
 # from itertools recipes:
@@ -31,9 +35,20 @@ def pairwise(iterable):
 
 @login_required
 def my_checks(request):
-    q = Check.objects.filter(user=request.team.user).order_by("created")
-    checks = list(q)
-
+    if request.has_team:
+        if request.user.id == request.team.user.id:
+            q1 = Check.objects.filter(user=request.user).order_by("-priority")
+        else:
+            m2 = Member.objects.filter(user=request.user)
+            q2 = [member.checks.all() for member in m2]
+            q1 = []
+            for check in list(q2):
+                for x in check:
+                    q1.append(x)
+        checks = list(q1)
+    else:
+        q1 = Check.objects.filter(user=request.user).order_by("-priority")
+        checks = list(q1)
     counter = Counter()
     down_tags, grace_tags = set(), set()
     for check in checks:
@@ -48,16 +63,23 @@ def my_checks(request):
                 down_tags.add(tag)
             elif check.in_grace_period():
                 grace_tags.add(tag)
-
     ctx = {
-        "page": "checks",
-        "checks": checks,
-        "now": timezone.now(),
-        "tags": counter.most_common(),
-        "down_tags": down_tags,
-        "grace_tags": grace_tags,
-        "ping_endpoint": settings.PING_ENDPOINT
-    }
+            "now": timezone.now(),
+            "tags": counter.most_common(),
+            "down_tags": down_tags,
+            "grace_tags": grace_tags,
+            "ping_endpoint": settings.PING_ENDPOINT
+        }
+    if not 'unresolved' in request.get_full_path():
+        ctx["page"] = "checks"
+        ctx["checks"] = checks
+    else:
+        unresolved = []
+        for check in checks:
+            if check.get_status() == "down":
+                unresolved.append(check)
+        ctx["page"] = "unresolved"
+        ctx["checks"] = unresolved
 
     return render(request, "front/my_checks.html", ctx)
 
@@ -236,6 +258,39 @@ def update_name(request, code):
 
     return redirect("hc-checks")
 
+@login_required
+@uuid_or_400
+def update_priority(request, code):
+    assert request.method == "POST"
+
+    check = get_object_or_404(Check, code=code)
+    if check.user_id != request.team.user.id:
+        return HttpResponseForbidden()
+
+    form = PriorityForm(request.POST)
+    if form.is_valid():
+        check.priority = form.cleaned_data["priority"]
+        check.save()
+
+    return redirect("hc-checks")
+
+@login_required
+@uuid_or_400
+def escalation_matrix(request, code):
+    assert request.method == "POST"
+
+    check = get_object_or_404(Check, code=code)
+    if check.user_id != request.team.user.id:
+        return HttpResponseForbidden()
+
+    form = EscalationMatrixForm(request.POST)
+    if form.is_valid():
+        check.escalation_enabled = form.cleaned_data["enabled"]
+        check.escalation_interval = td(seconds=form.cleaned_data["interval"])
+        check.escalation_list = form.cleaned_data["emails"]
+        check.save()
+
+    return redirect("hc-checks")
 
 @login_required
 @uuid_or_400
@@ -250,6 +305,7 @@ def update_timeout(request, code):
     if form.is_valid():
         check.timeout = td(seconds=form.cleaned_data["timeout"])
         check.grace = td(seconds=form.cleaned_data["grace"])
+        check.reverse = td(seconds=form.cleaned_data["reverse"])
         check.save()
 
     return redirect("hc-checks")
@@ -377,11 +433,20 @@ def channels(request):
     return render(request, "front/channels.html", ctx)
 
 
+
 def do_add_channel(request, data):
     form = AddChannelForm(data)
     if form.is_valid():
         channel = form.save(commit=False)
         channel.user = request.team.user
+
+        if channel.kind in ('telegram', 'Telegram'):
+            user_id = telegram.get_telegram_id(channel.value)
+            if not user_id:
+                params = {'error': True}
+                return redirect(reverse("hc-add-telegram") + '?failed=1')
+            channel.value = user_id
+
         channel.save()
 
         channel.assign_all_checks()
@@ -450,6 +515,15 @@ def add_email(request):
     ctx = {"page": "channels"}
     return render(request, "integrations/add_email.html", ctx)
 
+@login_required
+def add_sms(request):
+    ctx = {"page": "channels"}
+    return render(request, "integrations/add_sms.html", ctx)
+
+@login_required
+def add_telegram(request):
+    ctx = {"page": "channels"}
+    return render(request, "integrations/add_telegram.html", ctx)
 
 @login_required
 def add_webhook(request):
@@ -638,3 +712,10 @@ def privacy(request):
 
 def terms(request):
     return render(request, "front/terms.html", {})
+
+
+def support(request):
+    qnas = FAQnAnswers.objects.all()
+    qnas_list = list(qnas)
+    ctx = {"qnas": qnas_list}
+    return render(request, "front/support.html", ctx)

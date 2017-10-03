@@ -6,9 +6,12 @@
         <th>Ping URL</th>
         <th class="th-period">
             Period <br />
-            <span class="checks-subline">Grace</span>
+            <span class="checks-subline">Grace</span><br/>
+            <span class="checks-subline">Reverse Grace</span>
         </th>
+
         <th>Last Ping</th>
+        <th>Priority</th>
         <th></th>
     </tr>
     {% for check in checks %}
@@ -54,11 +57,16 @@
                 data-url="{% url 'hc-update-timeout' check.code %}"
                 data-timeout="{{ check.timeout.total_seconds }}"
                 data-grace="{{ check.grace.total_seconds }}"
+                data-reverse="{{ check.reverse.total_seconds }}"
                 class="timeout-grace">
                 {{ check.timeout|hc_duration }}
                 <br />
                 <span class="checks-subline">
                 {{ check.grace|hc_duration }}
+                </span>
+                <br />
+                <span class="checks-subline">
+                {{ check.reverse|hc_duration }}
                 </span>
             </span>
         </td>
@@ -73,6 +81,19 @@
             Never
         {% endif %}
         </td>
+        <td class="name-cell">
+            <div data-priority="{{ check.priority }}"
+                    data-url="{% url 'hc-update-priority' check.code %}"
+                    class="check-priority">
+                {% if check.priority == 1 %}
+                    Low
+                {% elif check.priority == 2 %}
+                    Normal
+                {% else %}
+                    High
+                {% endif %}
+            </div>
+        </td>
         <td>
             <div class="check-menu dropdown">
                 <button class="btn btn-sm btn-default dropdown-toggle" type="button" data-toggle="dropdown">
@@ -86,6 +107,14 @@
                            Pause Monitoring
                         </a>
                     </li>
+                    <li> 
+                        <a href="#"
+                        class="escalation-matrix"
+                        data-enabled="{{ check.escalation_enabled }}"
+                        data-interval="{{ check.escalation_interval.total_seconds }}"
+                        data-list="{{ check.escalation_list }}"
+                        data-url="{% url 'hc-escalation-matrix' check.code %}">
+                        Escalation Matrix</a></li>
                     <li role="separator" class="divider"></li>
                     <li>
                         <a href="{% url 'hc-log' check.code %}">

@@ -1,4 +1,5 @@
-__pycache__/
+.idea/
+git__pycache__/
 *.pyc
 .coverage
 .idea
@@ -11,3 +12,5 @@ static/.DS_Store
 .vscode/
 .env
 .idea/
+migrations/
+*/migrations/
